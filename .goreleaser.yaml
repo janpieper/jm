@@ -1,0 +1,71 @@
+version: 2
+
+project_name: jm
+
+builds:
+  - id: jm
+    main: main.go
+    binary: jm
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -v
+    ldflags:
+      - -X github.com/janpieper/jm/common.version={{ .Version }}
+      - -X github.com/janpieper/jm/common.buildDate={{ .Date }}
+      - -X github.com/janpieper/jm/common.gitCommit={{ .FullCommit }}
+      - -X github.com/janpieper/jm/common.gitTreeState={{ .GitTreeState }}
+      - -X github.com/janpieper/jm/common.gitTag={{ .Tag }}
+      - -extldflags="-static"
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: s390x
+      - goos: windows
+        goarch: ppc64le
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - formats: [tar.gz]
+    name_template: |-
+      {{ .ProjectName }}-{{ .Os }}-{{ .Arch }}
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+changelog:
+  use: github
+  sort: asc
+  abbrev: 0
+  groups:
+    - title: 'Breaking Changes'
+      regexp: '^.*?(\([[:word:]]+\))??!:.+$'
+      order: 0
+    - title: 'Features'
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 100
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 200
+    - title: 'Documentation'
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 300
+    - title: 'Other work'
+      order: 999
+  filters:
+    exclude:
+      - '^test:'
+      - '(?i)bump'
+
+release:
+  prerelease: auto
+  draft: false
+  footer: |
+    **Full Changelog**: https://github.com/janpieper/jm/compare/{{ .PreviousTag }}...{{ .Tag }}
