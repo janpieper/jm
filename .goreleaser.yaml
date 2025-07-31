@@ -32,7 +32,7 @@ builds:
         goarch: arm64
 
 archives:
-  - formats: [tar.gz]
+  - formats: [binary]
     name_template: |-
       {{ .ProjectName }}-{{ .Os }}-{{ .Arch }}
 
