@@ -7,6 +7,11 @@ import (
 
 const Marker = ".jm"
 
+type MarkerMatch struct {
+	Path   string
+	Marker string
+}
+
 func Exists() bool {
 	stat, _ := os.Stat(Marker)
 	return stat != nil
@@ -20,34 +25,34 @@ func Remove() error {
 	return os.Remove(Marker)
 }
 
-func Current(alternatives []string) (*string, error) {
-	files, err := List(alternatives)
+func Current(alternatives []string) (*MarkerMatch, error) {
+	matches, err := List(alternatives)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(files) > 0 {
-		file := files[0]
-		return &file, nil
+	if len(matches) > 0 {
+		match := matches[0]
+		return &match, nil
 	}
 
 	return nil, nil
 }
 
-func List(alternatives []string) ([]string, error) {
+func List(alternatives []string) ([]MarkerMatch, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	var files []string
+	var matches []MarkerMatch
 	markers := append([]string{Marker}, alternatives...)
 
 	for {
 		for _, marker := range markers {
 			file := filepath.Join(dir, marker)
 			if _, err := os.Stat(file); err == nil {
-				files = append(files, filepath.Dir(file))
+				matches = append(matches, MarkerMatch{filepath.Dir(file), marker})
 				break
 			}
 		}
@@ -60,5 +65,5 @@ func List(alternatives []string) ([]string, error) {
 		dir = parent
 	}
 
-	return files, nil
+	return matches, nil
 }
